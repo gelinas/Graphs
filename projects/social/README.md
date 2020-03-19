@@ -48,13 +48,27 @@ Note that in this sample, Users 3, 4 and 9 are not in User 1's extended social n
 
 1. To create 100 users with an average of 10 friends each, how many times would you need to call `add_friendship()`? Why?
 
+Is it not just 1,000?
+
 2. If you create 1000 users with an average of 5 random friends each, what percentage of other users will be in a particular user's extended social network? What is the average degree of separation between a user and those in his/her extended network?
+
+A formula:  
+- With 1000 users and average 5 random friends each, a user will have 99% extended network coverage and an average 5 degrees of separation (`log(5000)/log(5) = 5.29`).
+- Watts and Strogatz showed that the average path length between two nodes in a random network is equal to ln N / ln K, where N = total nodes and K = acquaintances per node. Thus if N = 300,000,000 (90% of the US population) and K = 30 then Degrees of Separation = 19.5 / 3.4 = 5.7 and if N = 6,000,000,000 (90% of the World population) and K = 30 then Degrees of Separation = 22.5 / 3.4 = 6.6. (Assume 10% of population is too young to participate.)
+
+A test: 
+- create 1,000 users with an average of 5 friends each.
+- get all social paths from user 1
+- average their path lengths
+- also comes out to 5.1 to 6.3
 
 
 
 ## 4. Stretch Goal
 
 1. You might have found the results from question #2 above to be surprising. Would you expect results like this in real life? If not, what are some ways you could improve your friendship distribution model for more realistic results?
+
+People are more likely to know eachother. Find a way to model that.
 
 2. If you followed the hints for part 1, your `populate_graph()` will run in O(n^2) time. Refactor your code to run in O(n) time. Are there any tradeoffs that come with this implementation?
 
