@@ -72,3 +72,4 @@ People are more likely to know eachother. Find a way to model that.
 
 2. If you followed the hints for part 1, your `populate_graph()` will run in O(n^2) time. Refactor your code to run in O(n) time. Are there any tradeoffs that come with this implementation?
 
+Collisions to an extreme level at high density
