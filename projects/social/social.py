@@ -108,7 +108,32 @@ class SocialGraph:
 
 if __name__ == '__main__':
     sg = SocialGraph()
+    # 10 people, 2 friends on average
     sg.populate_graph(10, 2)
-    print(sg.friendships)
+    # 1000 people, 5 friends on average
+    sg.populate_graph(1000, 5)
+
+    # see example friendships and social paths for user id 1
+    # print(sg.friendships)
     connections = sg.get_all_social_paths(1)
-    print(connections)
+    # print(connections)
+
+    # TEST for average length of path for just one user
+    total = 0
+    for path in connections.values():
+        total += len(path)
+    print(f"Average path length for user with id '1': {total / len(connections)}") # 5.1 to 5.3
+
+    # TEST for average length of path by checking all users
+    total = 0
+    for user_id in sg.users.keys():
+        user_total = 0
+        connections = sg.get_all_social_paths(user_id)
+        for path in connections.values():
+            user_total += len(path)
+        user_average = user_total / len(connections)
+        total += user_average
+    final_average = total / len(sg.users)
+    print(f"Average path length for ALL users: {final_average}")
+
+
