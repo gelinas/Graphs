@@ -1,3 +1,6 @@
+import random
+from util import Stack, Queue  # These may come in handy
+
 class User:
     def __init__(self, name):
         self.name = name
@@ -42,11 +45,30 @@ class SocialGraph:
         self.last_id = 0
         self.users = {}
         self.friendships = {}
-        # !!!! IMPLEMENT ME
 
         # Add users
+        # write a for loop that calls create user the right amount of times
+        for i in range(num_users):
+            self.add_user(f"User {i+1}")
 
         # Create friendships
+        # To create N random friendships
+        # you could create a list with all possible friendship combinations
+        # shuffle the list, then grab the first N elements from the list
+        possible_friendships = []
+        for user_id in self.users:
+            for friend_id in range(user_id + 1, self.last_id + 1):
+                possible_friendships.append((user_id, friend_id))
+
+        random.shuffle(possible_friendships)
+
+        # create n friendships where n = avg_friendships * num_users // 2
+        # avg_friendships = total_friendships / num_users
+        # total_Friendships = avg_friendships * num_users
+        for i in range(num_users * avg_friendships // 2):
+            friendship = possible_friendships[i]
+            self.add_friendship(friendship[0], friendship[1])
+
 
     def get_all_social_paths(self, user_id):
         """
@@ -57,8 +79,30 @@ class SocialGraph:
 
         The key is the friend's ID and the value is the path.
         """
+        # create a queue
+        q = Queue()
+        # enqueue a path to the starting user_id
+        q.enqueue([user_id])
         visited = {}  # Note that this is a dictionary, not a set
-        # !!!! IMPLEMENT ME
+        # While the queue is not empty...
+        while q.size() > 0:
+            # Dequeue the first path
+            path = q.dequeue()
+            # grab the last id form the path
+            current_id = path[-1]
+            # check if it's been visited
+            # If not ...
+            if current_id not in visited:
+                # add it to visited along with the path
+                visited[current_id] = path
+                # enqueue the path to each friend to the queue
+                for friend_id in self.friendships[current_id]:
+                    # copy the path
+                    path_copy = path.copy()
+                    # append each neighbor
+                    path_copy.append(friend_id)
+                    # enqueue
+                    q.enqueue(path_copy)
         return visited
 
 
