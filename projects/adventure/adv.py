@@ -193,8 +193,7 @@ class DepthFirstRoute:
         else:
             print("You traversed the entire world!")
             print(f"Path Length: {len(self.traversal_path)} \nTraversal Path: {self.traversal_path}")
-        # print("loop terminated by break")
-        # print(f"Path Length: {len(self.traversal_path)} \n Traversal Path: {self.traversal_path}")
+            return self.traversal_path
 
     def travel(self, direction):
         '''
@@ -253,7 +252,7 @@ class DepthFirstRoute:
 
 
 test = DepthFirstRoute()
-test.traverse_world(player)
+traversal_path = test.traverse_world(player)
     
 
 
@@ -264,20 +263,20 @@ test.traverse_world(player)
 
 
 # TRAVERSAL TEST
-# visited_rooms = set()
-# player.current_room = world.starting_room
-# visited_rooms.add(player.current_room)
+visited_rooms = set()
+player.current_room = world.starting_room
+visited_rooms.add(player.current_room)
 
-# for move in traversal_path:
-#     print(player.current_room.__str__())
-#     player.travel(move)
-#     visited_rooms.add(player.current_room)
+for move in traversal_path:
+    print(player.current_room.__str__())
+    player.travel(move)
+    visited_rooms.add(player.current_room)
 
-# if len(visited_rooms) == len(room_graph):
-#     print(f"TESTS PASSED: {len(traversal_path)} moves, {len(visited_rooms)} rooms visited")
-# else:
-#     print("TESTS FAILED: INCOMPLETE TRAVERSAL")
-#     print(f"{len(room_graph) - len(visited_rooms)} unvisited rooms")
+if len(visited_rooms) == len(room_graph):
+    print(f"TESTS PASSED: {len(traversal_path)} moves, {len(visited_rooms)} rooms visited")
+else:
+    print("TESTS FAILED: INCOMPLETE TRAVERSAL")
+    print(f"{len(room_graph) - len(visited_rooms)} unvisited rooms")
 
 
 
