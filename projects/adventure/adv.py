@@ -132,8 +132,11 @@ class DepthFirstRoute:
         self.visited = {}
         self.map = {}
         self.traversal_path = []
+
+        # victory condition: every room visited
         while len(self.visited) < len(world.rooms):
-            # check if current_room has been visited and map if not
+
+            # Step 1: check if current_room has been visited and map if not
             if player.current_room.id not in self.visited.keys():
                 # visit it
                 self.visited[player.current_room.id] = player.current_room
@@ -158,7 +161,8 @@ class DepthFirstRoute:
                             self.map[player.current_room.id][direction] = neighbor.id
                 # print new map
                 # print(f"updated map: {self.map}")
-            # do the other thing: move to a "?"
+
+            # Step 2: check for neighboring unexplored rooms and randomly travel to one, restart loop
             if "?" in self.map[player.current_room.id].values():
                 # get a list of unexplored directions
                 options = []
@@ -173,19 +177,24 @@ class DepthFirstRoute:
                 self.map[player.current_room.id][rand_direction] = next_room.id
                 # move to that direction
                 self.travel(rand_direction)
-                
+            
+            # Step 3: If no neighboring unexplored rooms, move to the closest known unexplored room
             else:
-                # do the other thing: no "?"s, BFS to a room with a "?"
-                # use self.find_nearest_unvisited_room() to find room id
-                # use go_to_mapped_room
+                # use self.find_nearest_unvisited_room() to find path
+                shortest_path = self.find_nearest_unvisited_room(player.current_room.id)
+                # use follow_path
+                if shortest_path is not None:
+                    print("UPDATE: Ran out of ?s, found closest unexplored path and starting again")
+                    self.follow_path(shortest_path)
                 # repeat loop
-                print("Ran out of ?s")
-                break
+                else:
+                    print(f"BREAK: find_nearest_unvisited_room returned None.")
+                print(f"LOOP END: Current Path Length: {len(self.traversal_path)} \nCurrent Visited Length: {len(self.visited)}")
         else:
             print("You traversed the entire world!")
-            print(f"Path Length: {len(self.traversal_path)} \n Traveral Path: {self.traversal_path}")
-        print("loop terminated by break")
-        print(f"Path Length: {len(self.traversal_path)} \n Traversal Path: {self.traversal_path}")
+            print(f"Path Length: {len(self.traversal_path)} \nTraversal Path: {self.traversal_path}")
+        # print("loop terminated by break")
+        # print(f"Path Length: {len(self.traversal_path)} \n Traversal Path: {self.traversal_path}")
 
     def travel(self, direction):
         '''
@@ -199,22 +208,48 @@ class DepthFirstRoute:
         else:
             print("ERROR: invalid direction")
 
-    def find_nearest_unvisited_room(self):
+    def find_nearest_unvisited_room(self, current_room):
         """
-        Breadth first search for room with "?"s
+        Breadth first search for path to room with "?"s
+        pass in current_room as int 'id'
+        return path as sequential list of tuples
+        tuple format (room_id, direction_to_room)
         """
-        pass
+        q = Queue()
+        # equeue path to current room
+        # tuple of (room_id, direction_to_room)
+        q.enqueue([(current_room, None)])
+        # visited just tracks room.id ints
+        visited = set()
+        while q.size() > 0:
+            path = q.dequeue()
+            end = path[-1][0]
+            if end not in visited:
+                visited.add(end)
+                # check if there's a "?" in the map for that room
+                if "?" in self.map[end].values():
+                    return path
+                for direction in self.map[end]:
+                    neighbor = self.map[end][direction]
+                    if neighbor not in visited and neighbor is not None:
+                        new_path = path.copy()
+                        new_step = (neighbor, direction)
+                        new_path.append(new_step)
+                        q.enqueue(new_path)
+        else:
+            print("No '?'s found on graph")
+            return None
+        
 
-    def go_to_mapped_room(self, player, target_room):
+    def follow_path(self, path):
         """
-        Breadth first search for shortest path to target_room
-        travel there and log path
+        Take path in (room_id, direction_to_room) and travel to the end
         """
-        pass
-        # print("FINAL:")
-        # print(self.visited)
-        # print(self.map)
-        # print(f"Length visited: {len(self.visited)}, Length mapped: {len(self.map)}")
+        for step in path:
+            if step[1] is not None:
+                self.travel(step[1])
+        # print(f"Travel complete. Current location: {player.current_room.id}")
+        # print(f"Adjacent rooms: {self.map[player.current_room.id]}")
 
 
 test = DepthFirstRoute()
