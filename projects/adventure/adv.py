@@ -77,9 +77,8 @@ class WorldGraph:
                     'n': None,
                     's': None,
                     'e': None,
-                    'w': None
-                    # 'x': current_room.x,
-                    # 'y': current_room.y
+                    'w': None,
+                    "connections": 0
                 }
                 for direction in ['n', 's', 'e', 'w']:
                     # get neighboring room object
@@ -87,6 +86,7 @@ class WorldGraph:
                     if neighbor is not None:
                         # add neighboring room id to map
                         self.map[current_room.id][direction] = neighbor.id
+                        self.map[current_room.id]['connections'] += 1
                         # add room to stack
                         s.push(neighbor)
         # print("FINAL:")
@@ -99,8 +99,8 @@ create world graph glass
 Depth first traversal to map the world into an adjaceny list
 Print the adjaceny list
 '''
-# adv_map = WorldGraph()
-# adv_map.map_world(world.starting_room)
+adv_map = WorldGraph()
+adv_map.map_world(world.starting_room)
 # print(adv_map.map)
 
 
@@ -108,7 +108,7 @@ Print the adjaceny list
 '''
 1. Possibility of using quadrants or connected components to prioritize traversals
 2. need to log "moves" including backtracking
-3. First pass
+3. First pass just use depth first traversing plus BFS for '?'s when reaching a dead end
 '''
 class DepthFirstRoute:
     def __init__(self):
@@ -184,15 +184,16 @@ class DepthFirstRoute:
                 shortest_path = self.find_nearest_unvisited_room(player.current_room.id)
                 # use follow_path
                 if shortest_path is not None:
-                    print("UPDATE: Ran out of ?s, found closest unexplored path and starting again")
+                    # print("UPDATE: Ran out of ?s, found closest unexplored path and starting again")
                     self.follow_path(shortest_path)
                 # repeat loop
                 else:
-                    print(f"BREAK: find_nearest_unvisited_room returned None.")
-                print(f"LOOP END: Current Path Length: {len(self.traversal_path)} \nCurrent Visited Length: {len(self.visited)}")
+                    # print(f"BREAK: find_nearest_unvisited_room returned None.")
+                    pass
+                # print(f"LOOP END: Current Path Length: {len(self.traversal_path)} \nCurrent Visited Length: {len(self.visited)}")
         else:
-            print("You traversed the entire world!")
-            print(f"Path Length: {len(self.traversal_path)} \nTraversal Path: {self.traversal_path}")
+            # print("You traversed the entire world!")
+            # print(f"Path Length: {len(self.traversal_path)} \nTraversal Path: {self.traversal_path}")
             return self.traversal_path
 
     def travel(self, direction):
@@ -201,7 +202,7 @@ class DepthFirstRoute:
         log to self.traversal_path
         '''
         if direction in ['n', 's', 'e', 'w']:
-            print(f"Moving {direction}")
+            # print(f"Moving {direction}")
             self.traversal_path.append(direction)
             player.travel(direction)
         else:
@@ -236,7 +237,7 @@ class DepthFirstRoute:
                         new_path.append(new_step)
                         q.enqueue(new_path)
         else:
-            print("No '?'s found on graph")
+            # print("No '?'s found on graph")
             return None
         
 
@@ -252,17 +253,48 @@ class DepthFirstRoute:
 
 
 test = DepthFirstRoute()
-traversal_path = test.traverse_world(player)
-    
+
+'''
+MVP solution
+run with random succesful path
+'''
+# player.current_room = world.starting_room
+# traversal_path = test.traverse_world(player)
+
+'''
+Stretch attempt #1
+continuously run function and look for shortest path (random)
+'''
+# def find_shortest_path(attempts):
+#     count = 0
+#     best_path = test.traverse_world(player)
+#     while count < attempts and len(best_path) > 959:
+#         player.current_room = world.starting_room
+#         new_path = test.traverse_world(player)
+#         if len(new_path) < len(best_path):
+#             best_path = new_path.copy()
+#             print(best_path)
+#             print(f"New shortest: {len(best_path)}")
+#         count +=1
+#     print(f"best_path:{best_path}")
+#     return best_path
+
+# best_path = find_shortest_path(50000)
+
+# 963 path shortest so far
+saved_path = ['s', 'w', 'e', 'n', 'w', 'w', 's', 'w', 's', 's', 'n', 'n', 'e', 'n', 'e', 'n', 'w', 'w', 's', 'n', 'w', 's', 's', 's', 'w', 'w', 'w', 's', 'w', 'n', 's', 'e', 'n', 'e', 'e', 'n', 'w', 'w', 'w', 'e', 'e', 'e', 's', 'e', 's', 'w', 's', 'w', 'e', 'n', 'w', 'e', 'e', 's', 's', 's', 's', 'w', 's', 'w', 's', 'w', 'e', 's', 'w', 'e', 'n', 'n', 'e', 's', 's', 'n', 'n', 'n', 'e', 's', 's', 's', 'e', 'e', 's', 's', 'e', 'w', 's', 'w', 'e', 'n', 'n', 'n', 'w', 's', 'n', 'w', 's', 'w', 'e', 'n', 'n', 'n', 'n', 'n', 'n', 'w', 's', 'w', 'w', 'w', 'w', 'e', 's', 'w', 'w', 'e', 'e', 's', 's', 's', 's', 'e', 'w', 's', 'e', 'w', 'n', 'n', 'n', 'n', 'w', 's', 's', 's', 's', 'n', 'w', 'w', 'e', 'e', 'n', 'w', 'e', 'n', 'w', 'e', 'n', 'w', 'w', 'w', 'e', 'e', 'e', 'e', 'n', 'n', 'e', 'e', 's', 'w', 's', 'n', 'e', 'n', 'e', 'n', 'w', 'w', 'n', 's', 'w', 'w', 'w', 's', 'w', 's', 'n', 'e', 'n', 'e', 'e', 'n', 'w', 'w', 'n', 'w', 'e', 's', 'e', 'n', 'n', 'w', 'n', 'w', 'e', 'e', 'n', 'w', 'n', 's', 'w', 'e', 'e', 'n', 's', 'e', 'e', 'e', 'n', 'e', 'n', 'w', 'w', 'w', 'n', 'w', 'w', 'w', 'e', 's', 'n', 'e', 'n', 'n', 's', 'w', 'w', 'w', 'e', 'e', 'e', 's', 'e', 'n', 's', 's', 'w', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'n', 's', 'e', 'e', 'e', 's', 'e', 'n', 'n', 'n', 'e', 'n', 'n', 's', 's', 'w', 'n', 'n', 's', 's', 's', 's', 'e', 'n', 'e', 'n', 'n', 'n', 'n', 's', 's', 's', 'e', 'n', 'n', 'e', 'n', 'n', 'e', 'n', 's', 'e', 'e', 'e', 'w', 'n', 's', 'w', 'n', 's', 'w', 'w', 's', 's', 'w', 'n', 's', 's', 's', 'w', 's', 'w', 's', 'w', 's', 'e', 'e', 'e', 'e', 'e', 'e', 'w', 'w', 's', 'e', 'e', 'e', 'n', 's', 'e', 'w', 'w', 'w', 'w', 'n', 'w', 's', 'n', 'w', 'n', 'e', 'e', 'e', 'e', 'e', 'e', 's', 'n', 'w', 'w', 'w', 'w', 'w', 'n', 'e', 'n', 'e', 'e', 's', 'e', 'e', 'e', 's', 'n', 'w', 'w', 'w', 'n', 'e', 'e', 'w', 'n', 'e', 'w', 's', 'w', 'w', 's', 'n', 'w', 'n', 'e', 'e', 'n', 'e', 'w', 's', 'w', 'n', 'n', 'e', 'e', 'e', 's', 'n', 'w', 'w', 'w', 's', 's', 'w', 's', 's', 'w', 's', 'w', 's', 'w', 's', 'e', 's', 's', 'e', 'w', 'n', 'e', 'e', 'e', 'e', 'e', 'w', 'w', 'w', 's', 's', 's', 's', 'e', 'e', 'w', 'w', 's', 'e', 'e', 'w', 'w', 'n', 'n', 'e', 'n', 's', 'e', 'w', 'w', 'n', 'n', 'e', 'e', 'e', 'w', 's', 'n', 'w', 'w', 'n', 'w', 'w', 'n', 'w', 's', 's', 'n', 'n', 'n', 'w', 'w', 's', 'e', 'w', 's', 's', 'w', 's', 's', 's', 's', 's', 's', 's', 's', 's', 's', 'n', 'n', 'n', 'n', 'n', 'w', 'w', 'w', 'n', 's', 'e', 's', 'e', 's', 's', 's', 'n', 'n', 'n', 'w', 's', 'n', 'w', 's', 'n', 'e', 'n', 'e', 'n', 'w', 'e', 'n', 'w', 'e', 'n', 'w', 'w', 's', 'n', 'e', 'e', 'n', 'w', 'e', 'n', 'w', 'e', 'e', 'w', 'e', 'e', 's', 's', 's', 's', 's', 'n', 'e', 's', 's', 'w', 's', 's', 'n', 'n', 'e', 's', 'e', 'e', 'e', 'n', 'e', 's', 's', 'n', 'n', 'e', 's', 's', 's', 's', 'n', 'n', 'e', 'w', 'n', 'n', 'e', 'w', 'w', 'w', 's', 'w', 'w', 's', 's', 's', 'n', 'n', 'e', 's', 's', 'n', 'n', 'e', 's', 's', 'n', 'n', 'w', 'w', 'n', 'w', 's', 's', 'w', 's', 'n', 'e', 's', 's', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'w', 'n', 'n', 'n', 'e', 's', 's', 'n', 'n', 'e', 's', 's', 's', 's', 's', 'e', 'w', 'n', 'n', 'n', 'e', 's', 's', 'e', 'e', 'e', 'e', 'w', 'w', 'w', 'w', 'n', 'e', 'w', 'n', 'w', 'n', 'e', 'n', 'e', 's', 's', 'n', 'n', 'w', 's', 'w', 'n', 'w', 'w', 'n', 'n', 'e', 's', 'n', 'w', 'n', 'w', 'n', 's', 'e', 'n', 'n', 'w', 'n', 'w', 'e', 'n', 'e', 's', 'n', 'n', 'n', 'w', 'n', 'n', 'w', 'n', 'e', 'w', 'w', 'e', 's', 'e', 's', 's', 'e', 'n', 'e', 'e', 'w', 'w', 'n', 'n', 'e', 'w', 'n', 'e', 'n', 'n', 's', 's', 'w', 'n', 'n', 'n', 'e', 'n', 'w', 'w', 'e', 'e', 's', 'e', 'n', 'e', 'e', 'w', 'w', 's', 's', 's', 's', 'e', 's', 'e', 'n', 'e', 'e', 'e', 'w', 'n', 's', 'w', 'n', 's', 'w', 's', 'e', 'w', 'w', 's', 'w', 'n', 's', 'w', 'w', 'e', 'e', 'e', 'e', 'w', 'n', 'n', 'n', 'e', 'n', 'e', 'n', 'n', 's', 'e', 'e', 'w', 's', 'n', 'w', 's', 'w', 'n', 's', 's', 'w', 'n', 'n', 's', 's', 's', 's', 's', 'w', 'w', 'w', 'n', 'n', 'w', 'w', 'w', 'n', 'n', 'n', 'n', 's', 's', 's', 'w', 'n', 'n', 'w', 'e', 's', 's', 'e', 's', 'w', 'w', 'w', 'n', 's', 'e', 'n', 's', 'e', 's', 'w', 'e', 'n', 'e', 'e', 'e', 'n', 'w', 'n', 's', 'e', 'n', 's', 's', 'e', 's', 's', 's', 's', 's', 's', 'w', 'w', 'n', 'w', 'n', 's', 'e', 'n', 'n', 'w', 'w', 'n', 'w', 'e', 's', 'e', 'n', 's', 'e', 's', 's', 's', 'w', 'w', 'w', 'n', 's', 'w', 'n', 'w', 'n', 'n', 'n', 'n', 'n', 'n', 's', 's', 'w', 'e', 's', 's', 's', 'w', 'w', 'w', 'w', 'w', 'e', 's', 'w', 'e', 'n', 'e', 'e', 'n', 'n', 'n', 's', 's', 'w', 'e', 's', 'e', 'n', 'n', 's', 's', 'e', 's', 'w', 'w', 'e', 'e', 'e', 'n', 'n', 'n', 'n', 's', 's', 's', 's', 's', 'e', 'e', 'n', 'n', 'w', 'n', 's', 'e', 's', 's', 'e', 'e', 'e', 'n', 's', 's', 's', 'w', 'w', 'w', 'n', 's', 'w', 'n', 's', 'w', 'n', 'w', 'n', 'w', 'e', 's', 'w', 'e', 'e', 's', 's', 's', 'n', 'w', 'w', 'w']
+
+
+# run with 960 step saved path
+traversal_path = saved_path.copy()
+
+# run with random succesful path
+# player.current_room = world.starting_room
+# traversal_path = test.traverse_world(player)
 
 
 
-# traversal_path = ['n', 'n']
-# traversal_path = ['n', 'n']
-
-
-
-# TRAVERSAL TEST
+# # TRAVERSAL TEST
 visited_rooms = set()
 player.current_room = world.starting_room
 visited_rooms.add(player.current_room)
